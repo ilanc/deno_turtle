@@ -3,3 +3,9 @@
 !*.ts
 !LICENSE
 !README.md
+!public
+public/*
+!public/favicon.ico
+!public/*.html
+!public/*.css
+!public/*.js

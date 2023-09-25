@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deno Turtle</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="preload" href="/worker.js" as="worker" />
+    <link rel="stylesheet" href="/main.css" />
+    <script type="module" src="/main.js"></script>
+  </head>
+  <body>
+    <h1>🐢 Deno Turtle</h1>
+    <form>
+      <label for="url">File URL:</label>
+      <input id="url" type="url" value="https://turtle.deno.dev/bin" />
+      <br>
+      <label for="progress">Progress:</label>
+      <progress id="progress" max="100" value="0"></progress>
+      <div id="actions">
+        <button type="button" id="download">Download</button>
+        <button type="button" id="abort" disabled>Abort</button>
+      </div>
+    </form>
+    <h2>Storage</h2>
+    <div id="files"></div>
+    <template id="file">
+      <p>
+        <button type="button">Delete</button>
+        <span>Name</span>
+      </p>
+    </template>
+    <p>
+      <small
+        >The example URL streams a 10 KB random binary file at 512 bytes per
+        second. It should take 20 seconds.</small
+      >
+    </p>
+  </body>
+</html>

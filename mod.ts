@@ -1,6 +1,19 @@
+import {serveDir} from 'https://deno.land/std@0.202.0/http/file_server.ts';
+
 const TOTAL_BYTES = 1024 * 10;
 const CHUNK_SIZE = 64;
 const BPS = 512;
+
+Deno.serve((request: Request) => {
+  const url = new URL(request.url);
+  if (url.pathname === '/bin') {
+    return stream();
+  }
+  return serveDir(request, {
+    fsRoot: './public',
+    quiet: true
+  });
+});
 
 const generate = function* (totalBytes: number, chunkSize: number) {
   let remaining = totalBytes;
@@ -12,7 +25,7 @@ const generate = function* (totalBytes: number, chunkSize: number) {
   }
 };
 
-Deno.serve((req: Request) => {
+const stream = () => {
   const stream = new ReadableStream({
     async start(controller) {
       const generator = generate(TOTAL_BYTES, CHUNK_SIZE);
@@ -39,4 +52,4 @@ Deno.serve((req: Request) => {
   return new Response(stream, {
     headers
   });
-});
+};

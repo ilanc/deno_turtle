@@ -1,0 +1,52 @@
+:root {
+  font-family: sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1, h2, p {
+  margin-block: 1.5rem;
+}
+
+form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+label {
+  display: block;
+  font-weight: 700;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+input[type='url'] {
+  width: 100%;
+}
+
+progress {
+  width: 100%;
+}
+
+#actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#files {
+  display: grid;
+  gap: 0.5rem;
+  margin-block-end: 1rem;
+}
+
+#files p {
+  margin: 0;
+}
+
+#files span {
+  font-family: monospace;
+}
