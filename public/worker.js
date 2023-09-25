@@ -47,8 +47,12 @@ const onDownload = async (url) => {
     controller = new AbortController();
     // Use `URL` instance for cheap validation
     const response = await fetch(new URL(url), {
-      signal: controller.signal
+      signal: controller.signal,
+      cache: 'no-cache'
     });
+    if (!response.ok) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
     // Get a readable stream and content length
     const reader = response.body.getReader();
     const length = Number.parseInt(response.headers.get('content-length'));

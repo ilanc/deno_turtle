@@ -13,8 +13,8 @@
     <h1>🐢 Deno Turtle</h1>
     <form>
       <label for="url">File URL:</label>
-      <input id="url" type="url" value="https://turtle.deno.dev/bin" />
-      <br>
+      <input id="url" type="url" value="" />
+      <br />
       <label for="progress">Progress:</label>
       <progress id="progress" max="100" value="0"></progress>
       <div id="actions">
@@ -30,11 +30,13 @@
         <span>Name</span>
       </p>
     </template>
-    <p>
-      <small
-        >The example URL streams a 10 KB random binary file at 512 bytes per
-        second. It should take 20 seconds.</small
-      >
-    </p>
+    <h2>Notes</h2>
+    <ul>
+      <li>
+        The example URL streams a 10 KB random binary file at 512 bytes per
+        second. It should take 20 seconds.
+      </li>
+      <li>Storage usage includes downloads and other cached assets.</li>
+    </ul>
   </body>
 </html>

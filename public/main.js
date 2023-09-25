@@ -5,6 +5,9 @@ const $abort = document.querySelector('#abort');
 const $files = document.querySelector('#files');
 const $file = document.querySelector('#file');
 
+const location = new URL(document.location.href);
+$url.value = `https://${location.host}/bin`;
+
 const worker = new Worker('/worker.js');
 
 worker.addEventListener('message', (ev) => {
