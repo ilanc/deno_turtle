@@ -1,6 +1,6 @@
 const TOTAL_BYTES = 1024 * 10;
 const CHUNK_SIZE = 64;
-const BPS = 64;
+const BPS = 512;
 
 const generate = function* (totalBytes: number, chunkSize: number) {
   let remaining = totalBytes;
