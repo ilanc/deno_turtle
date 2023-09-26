@@ -86,11 +86,9 @@ const startDownload = async (url) => {
     // Get a readable stream, content length, and filename
     const reader = response.body.getReader();
     const length = Number.parseInt(response.headers.get('content-length'));
-    console.log(...response.headers);
     filename = response.headers
       .get('content-disposition')
       .match(/filename="([^"]+)"/)[1];
-
     // Create a new writable file handle
     const root = await navigator.storage.getDirectory();
     const handle = await root.getFileHandle(filename, {create: true});

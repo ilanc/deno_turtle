@@ -5,15 +5,12 @@ const $abort = document.querySelector('#abort');
 const $files = document.querySelector('#files');
 const $file = document.querySelector('#file');
 
-document.querySelector('form').addEventListener('submit', (ev) => {
-  ev.preventDefault();
-});
-
 const url = new URL('https://turtle.deno.dev/bin');
 
 const worker = new Worker('/worker.js');
 
 /**
+ * Handle `message` events from worker
  * @param {MessageEvent<{
  *   type: string,
  *   value?: number,
@@ -22,15 +19,14 @@ const worker = new Worker('/worker.js');
  */
 const onMessage = (ev) => {
   switch (ev.data.type) {
-    case 'files':
-      updateFiles(ev.data.files);
-      break;
-    case 'progress':
-      $progress.value = ev.data.value;
-      $progress.parentNode.style.setProperty('--value', ev.data.value);
-      break;
     case 'started':
       onStart();
+      break;
+    case 'progress':
+      updateProgress(ev.data.value);
+      break;
+    case 'files':
+      updateFiles(ev.data.files);
       break;
     case 'ended':
     case 'aborted':
@@ -59,7 +55,7 @@ $files.addEventListener('click', (ev) => {
   const $button = ev.target.closest('button');
   if (!$button) return;
   $button.disabled = true;
-  const name = $button.parentNode.querySelector('span').textContent;
+  const name = $button.parentNode.querySelector('.name').textContent;
   worker.postMessage({
     type: 'delete',
     name
@@ -81,16 +77,16 @@ const onReset = () => {
 };
 
 /**
- * @param {number} bytes
+ * Update download percentage
+ * @param {number} value
  */
-const formatBytes = (bytes) => {
-  if (bytes === 0) return '0 B';
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
+const updateProgress = (value) => {
+  $progress.value = value;
+  $progress.parentNode.style.setProperty('--value', value);
 };
 
 /**
+ * Build list of files recieved from worker
  * @param {{name: string, size: number}[]} files
  */
 const updateFiles = async (files) => {
@@ -110,4 +106,15 @@ const updateFiles = async (files) => {
     $files.innerHTML = '<p>Browser does not support storage estimate.</p>';
   }
   $files.appendChild(frag);
+};
+
+/**
+ * Format bytes to string with readable units
+ * @param {number} bytes
+ */
+const formatBytes = (bytes) => {
+  if (bytes === 0) return '0 B';
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
 };

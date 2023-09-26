@@ -125,6 +125,7 @@ progress {
   position: absolute;
   inset-block: 0;
   inset-inline-start: calc(-100% + (1% * var(--value)));
+  transition: inset-inline-start 200ms;
   width: 100%;
 }
 

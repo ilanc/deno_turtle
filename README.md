@@ -4,7 +4,7 @@ Turtle is a Deno Deploy project that streams random binary data at incredibly sl
 
 [turtle.deno.dev](https://turtle.deno.dev)
 
-It's purpose is to demonstrate [browser storage APIs](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API) and monitoring fetch progress.
+Its purpose is to demonstrate [browser storage APIs](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API) and monitoring fetch progress.
 
 ## Notes
 
