@@ -158,5 +158,9 @@ progress {
 }
 
 #files span {
-  font-family: monospace;
+  font-size: 0.875rem;
+}
+
+#files .size {
+  color: oklch(var(--dark) / 0.8);
 }
