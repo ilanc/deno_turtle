@@ -9,3 +9,7 @@ public/*
 !public/*.html
 !public/*.css
 !public/*.js
+!public/font
+public/font/*
+!public/font/*.txt
+!public/font/*.woff2

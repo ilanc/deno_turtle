@@ -1,46 +1,76 @@
-self.postMessage({type: 'ready'});
-
-self.addEventListener('message', (ev) => {
-  const {type} = ev.data;
-  if (type === 'download') {
-    onDownload(ev.data.url);
-  }
-  if (type === 'abort') {
-    onAbort();
-  }
-  if (type === 'delete') {
-    deleteFile(ev.data.name);
-  }
-});
-
+// Active download
 let controller;
+let filename;
 
-const onAbort = () => {
-  if (controller) {
-    controller.abort();
-    controller = null;
+/**
+ * Handle `message` events from main thread
+ * @param {MessageEvent<{type: string, url?: string, name?: string}>} ev
+ */
+const onMessage = (ev) => {
+  switch (ev.data.type) {
+    case 'download':
+      startDownload(ev.data.url);
+      break;
+    case 'abort':
+      abortDownload();
+      break;
+    case 'delete':
+      deleteFile(ev.data.name);
+      break;
   }
-  deleteFile('.tmp');
-  self.postMessage({type: 'aborted'});
 };
 
+/**
+ * Post files list with the name and size
+ * @returns {Promise<{name: string, size: number}[]>}
+ */
+const sendFiles = async () => {
+  const files = [];
+  const root = await navigator.storage.getDirectory();
+  for await (const [name, value] of root.entries()) {
+    if (value.kind !== 'file') continue;
+    if (name === filename) continue;
+    const handle = await root.getFileHandle(name);
+    const access = await handle.createSyncAccessHandle();
+    files.push({
+      name,
+      size: await access.getSize()
+    });
+    access.close();
+  }
+  self.postMessage({type: 'files', files});
+};
+
+/**
+ * Delete a file by name
+ * @param {string} name
+ */
 const deleteFile = async (name) => {
   try {
     const root = await navigator.storage.getDirectory();
     await root.removeEntry(name);
-    self.postMessage({type: 'deleted'});
   } catch (err) {
-    console.log(err);
+    console.error(err);
+  } finally {
+    sendFiles();
   }
 };
 
-const randomName = () =>
-  Array.from(
-    {length: 12},
-    () => 'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]
-  ).join('');
+/**
+ * Abort the active download
+ */
+const abortDownload = () => {
+  if (!controller) return;
+  controller.abort();
+  controller = null;
+  self.postMessage({type: 'aborted'});
+};
 
-const onDownload = async (url) => {
+/**
+ * Start new download of `url` specified
+ * @param {string} url
+ */
+const startDownload = async (url) => {
   let writer;
   try {
     self.postMessage({type: 'started'});
@@ -48,17 +78,22 @@ const onDownload = async (url) => {
     // Use `URL` instance for cheap validation
     const response = await fetch(new URL(url), {
       signal: controller.signal,
-      cache: 'no-cache'
+      cache: 'no-store'
     });
     if (!response.ok) {
       throw new Error(`${response.status} ${response.statusText}`);
     }
-    // Get a readable stream and content length
+    // Get a readable stream, content length, and filename
     const reader = response.body.getReader();
     const length = Number.parseInt(response.headers.get('content-length'));
+    console.log(...response.headers);
+    filename = response.headers
+      .get('content-disposition')
+      .match(/filename="([^"]+)"/)[1];
+
     // Create a new writable file handle
     const root = await navigator.storage.getDirectory();
-    const handle = await root.getFileHandle('.tmp', {create: true});
+    const handle = await root.getFileHandle(filename, {create: true});
     writer = await handle.createSyncAccessHandle();
     // Track read bytes as chunks are streamed
     let read = 0;
@@ -73,14 +108,21 @@ const onDownload = async (url) => {
       });
     }
     writer.close();
-    await handle.move(`${randomName()}.bin`);
     self.postMessage({type: 'ended'});
   } catch (err) {
     console.error(err);
-    if (writer) {
-      writer.close();
-    }
-    deleteFile();
+    if (writer) writer.close();
+    deleteFile(filename);
     self.postMessage({type: 'error'});
+  } finally {
+    controller = null;
+    filename = '';
+    sendFiles();
   }
 };
+
+// Listen to main thread
+self.addEventListener('message', onMessage);
+
+// Send initial files on load
+sendFiles();

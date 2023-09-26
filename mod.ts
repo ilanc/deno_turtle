@@ -15,6 +15,14 @@ Deno.serve((request: Request) => {
   });
 });
 
+// Random filename
+const filename = () =>
+  Array.from(
+    {length: 12},
+    () => 'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]
+  ).join('') + '.bin';
+
+// Random bytes generator
 const generate = function* (totalBytes: number, chunkSize: number) {
   let remaining = totalBytes;
   while (remaining > 0) {
@@ -25,6 +33,7 @@ const generate = function* (totalBytes: number, chunkSize: number) {
   }
 };
 
+// ReadableStream response
 const stream = () => {
   const stream = new ReadableStream({
     async start(controller) {
@@ -42,13 +51,12 @@ const stream = () => {
     }
   });
   const headers = new Headers();
-  headers.set('Access-Control-Allow-Origin', '*');
-  headers.set(
-    'Content-Disposition',
-    `attachment; filename="${TOTAL_BYTES}.bin"`
-  );
-  headers.set('Content-Type', 'application/octet-stream');
-  headers.set('Content-Length', String(TOTAL_BYTES));
+  headers.set('access-control-allow-origin', '*');
+  headers.set('access-control-expose-headers', 'content-disposition');
+  headers.set('content-disposition', `attachment; filename="${filename()}"`);
+  headers.set('content-type', 'application/octet-stream');
+  headers.set('content-length', String(TOTAL_BYTES));
+  headers.set('cache-control', 'no-store');
   return new Response(stream, {
     headers
   });
