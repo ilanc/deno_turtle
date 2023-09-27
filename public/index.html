@@ -11,14 +11,23 @@
   </head>
   <body>
     <h1>🐢 Turtle</h1>
+    <p>
+      This form downloads a small file very slowly to demonstrate web streams,
+      fetch progress, controllers, and file storage APIs.
+    </p>
     <form>
       <label for="progress">Progress:</label>
       <div class="progress" style="--value: 0">
         <progress id="progress" max="100" value="0"></progress>
       </div>
       <div id="actions">
-        <button type="button" id="download">Download</button>
-        <button type="button" id="abort" disabled>Abort</button>
+        <button type="button" id="download">
+          <span>Download</span>
+          <small>(10 KB)</small>
+        </button>
+        <button type="button" id="abort" disabled>
+          <span>Abort</span>
+        </button>
       </div>
     </form>
     <h2>Storage</h2>
@@ -27,7 +36,7 @@
     </div>
     <template id="file">
       <p>
-        <button type="button">Delete</button>
+        <button type="button"><small>Delete</small></button>
         <span class="name">filename.bin</span>
         <span class="size">10 KB</span>
       </p>

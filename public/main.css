@@ -71,6 +71,7 @@ label {
 }
 
 button {
+  align-items: baseline;
   appearance: none;
   background: oklch(var(--white));
   border: calc((1 / 16) * 1rem) solid oklch(var(--green2) / 0.5);
@@ -81,12 +82,23 @@ button {
     oklch(var(--green1));
   color: oklch(var(--green2));
   cursor: pointer;
-  display: inline-block;
+  display: inline-flex;
   font-size: 1rem;
+  gap: 0.5rem;
   max-width: max-content;
   padding: 0.4rem 0.6rem;
   text-decoration: none;
   transition: color 200ms, background-color 200ms, box-shadow 200ms;
+}
+
+button > * {
+  color: inherit;
+  flex: 0 0 auto;
+}
+
+button > small {
+  font-size: 0.75rem;
+  text-transform: uppercase;
 }
 
 button:hover {
@@ -146,11 +158,6 @@ progress {
   flex-wrap: wrap;
   gap: 0.5rem;
   margin: 0;
-}
-
-#files button {
-  font-size: 0.875rem;
-  padding: 0.3rem 0.5rem;
 }
 
 #files p > * {
