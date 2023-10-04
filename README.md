@@ -10,6 +10,8 @@ Its purpose is to demonstrate web streams, fetch progress, controllers, and [fil
 
 The example streams a 10 KB random binary file at 512 bytes per second. It should take around 20 seconds. Storage usage includes downloaded files and other cached assets as reported by the browser.
 
+[Read my blog post for more information.](https://dbushell.com/2023/10/02/storage-apis-downloading-files-for-offline-access/)
+
 * * *
 
 [MIT License](/LICENSE) | Copyright © 2023 [David Bushell](https://dbushell.com)
