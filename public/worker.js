@@ -8,13 +8,13 @@ let filename;
  */
 const onMessage = (ev) => {
   switch (ev.data.type) {
-    case 'download':
+    case "download":
       startDownload(ev.data.url);
       break;
-    case 'abort':
+    case "abort":
       abortDownload();
       break;
-    case 'delete':
+    case "delete":
       deleteFile(ev.data.name);
       break;
   }
@@ -28,17 +28,17 @@ const sendFiles = async () => {
   const files = [];
   const root = await navigator.storage.getDirectory();
   for await (const [name, value] of root.entries()) {
-    if (value.kind !== 'file') continue;
+    if (value.kind !== "file") continue;
     if (name === filename) continue;
     const handle = await root.getFileHandle(name);
     const access = await handle.createSyncAccessHandle();
     files.push({
       name,
-      size: await access.getSize()
+      size: await access.getSize(),
     });
     access.close();
   }
-  self.postMessage({type: 'files', files});
+  self.postMessage({ type: "files", files });
 };
 
 /**
@@ -63,7 +63,7 @@ const abortDownload = () => {
   if (!controller) return;
   controller.abort();
   controller = null;
-  self.postMessage({type: 'aborted'});
+  self.postMessage({ type: "aborted" });
 };
 
 /**
@@ -72,55 +72,59 @@ const abortDownload = () => {
  */
 const startDownload = async (url) => {
   let writer;
+  let t0 = new Date();
   try {
-    self.postMessage({type: 'started'});
+    self.postMessage({ type: "started" });
     controller = new AbortController();
     // Use `URL` instance for cheap validation
     const response = await fetch(new URL(url), {
       signal: controller.signal,
-      cache: 'no-store'
+      cache: "no-store",
     });
     if (!response.ok) {
       throw new Error(`${response.status} ${response.statusText}`);
     }
     // Get a readable stream, content length, and filename
     const reader = response.body.getReader();
-    const length = Number.parseInt(response.headers.get('content-length'));
+    const length = Number.parseInt(response.headers.get("content-length"));
+    console.log("length:", length);
     filename = response.headers
-      .get('content-disposition')
+      .get("content-disposition")
       .match(/filename="([^"]+)"/)[1];
     // Create a new writable file handle
     const root = await navigator.storage.getDirectory();
-    const handle = await root.getFileHandle(filename, {create: true});
+    const handle = await root.getFileHandle(filename, { create: true });
     writer = await handle.createSyncAccessHandle();
     // Track read bytes as chunks are streamed
     let read = 0;
     while (true) {
-      const {done, value} = await reader.read();
+      const { done, value } = await reader.read();
       if (done) break;
       writer.write(value);
       read += value.length;
       self.postMessage({
-        type: 'progress',
-        value: (100 / length) * read
+        type: "progress",
+        value: (100 / length) * read,
       });
     }
     writer.close();
-    self.postMessage({type: 'ended'});
+    let t1 = new Date();
+    console.log("opfs write:", t1 - t0, "ms");
+    self.postMessage({ type: "ended" });
   } catch (err) {
     console.error(err);
     if (writer) writer.close();
     deleteFile(filename);
-    self.postMessage({type: 'error'});
+    self.postMessage({ type: "error" });
   } finally {
     controller = null;
-    filename = '';
+    filename = "";
     sendFiles();
   }
 };
 
 // Listen to main thread
-self.addEventListener('message', onMessage);
+self.addEventListener("message", onMessage);
 
 // Send initial files on load
 sendFiles();
